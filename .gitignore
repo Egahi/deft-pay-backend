@@ -338,3 +338,6 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+/deft-pay-backend/appsettings.Development.json
+/deft-pay-backend/appsettings.json
