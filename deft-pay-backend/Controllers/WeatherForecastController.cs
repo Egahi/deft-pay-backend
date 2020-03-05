@@ -23,6 +23,10 @@ namespace deft_pay_backend.Controllers
             _logger = logger;
         }
 
+        /// <remarks>
+        /// Get WeatherForecast endpoint
+        /// </remarks>
+        /// <returns></returns>
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
