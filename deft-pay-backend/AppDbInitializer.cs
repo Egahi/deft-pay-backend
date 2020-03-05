@@ -31,40 +31,31 @@ namespace deft_pay_backend
                 roleManager.CreateAsync(new ApplicationRole(UserRoleConstants.USER));
             }
 
-            logger.LogDebug("----At point two");
-
-            var result2 = roleManager.FindByNameAsync(UserRoleConstants.ADMIN).Result;
-
-            if (result2 == null)
-            {
-                roleManager.CreateAsync(new ApplicationRole(UserRoleConstants.ADMIN));
-            }
-
-            string adminEmail = configuration["DefaultAdminEmail"];
-            string adminPassword = configuration["DefaultAdminPassword"];
+            string defaultUserEmail = configuration["DefaultAdminEmail"];
+            string defaultUserPassword = configuration["DefaultAdminPassword"];
 
             // Setup admin user only if it is setup in appsettings
-            if (!string.IsNullOrEmpty(adminEmail) && !string.IsNullOrEmpty(adminPassword))
+            if (!string.IsNullOrEmpty(defaultUserEmail) && !string.IsNullOrEmpty(defaultUserPassword))
             {
-                if (userManager.FindByEmailAsync(adminEmail).Result == null)
+                if (userManager.FindByEmailAsync(defaultUserEmail).Result == null)
                 {
                     ApplicationUser user = new ApplicationUser
                     {
-                        UserName = adminEmail,
-                        NormalizedUserName = adminEmail.ToUpper(),
-                        Email = adminEmail,
-                        NormalizedEmail = adminEmail.ToUpper(),
+                        UserName = defaultUserEmail,
+                        NormalizedUserName = defaultUserEmail.ToUpper(),
+                        Email = defaultUserEmail,
+                        NormalizedEmail = defaultUserEmail.ToUpper(),
                         EmailConfirmed = true
                     };
 
                     try
                     {
-                        IdentityResult result = userManager.CreateAsync(user, adminPassword).Result;
+                        IdentityResult result = userManager.CreateAsync(user, defaultUserPassword).Result;
 
                         if (result.Succeeded)
                         {
-                            userManager.AddToRoleAsync(user, UserRoleConstants.ADMIN).Wait();
-                            logger.LogDebug("CREATED THE ADMIN USER");
+                            userManager.AddToRoleAsync(user, UserRoleConstants.USER).Wait();
+                            logger.LogDebug("CREATED THE Default USER");
                         }
                         else
                         {
@@ -73,7 +64,7 @@ namespace deft_pay_backend
                     }
                     catch (Exception e)
                     {
-                        logger.LogError(e, "Error creating admin user");
+                        logger.LogError(e, "Error creating default user");
                     }
                 }
             }
