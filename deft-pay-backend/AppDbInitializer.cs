@@ -23,13 +23,19 @@ namespace deft_pay_backend
                                      ILogger<AppDbInitializer> logger)
         {
             logger.LogDebug("----At point one");
-            if (roleManager.FindByNameAsync(UserRoleConstants.USER).Result == null)
+
+            var result1 = roleManager.FindByNameAsync(UserRoleConstants.USER).GetAwaiter().GetResult();
+
+            if (result1 == null)
             {
                 roleManager.CreateAsync(new ApplicationRole(UserRoleConstants.USER));
             }
 
             logger.LogDebug("----At point two");
-            if (roleManager.FindByNameAsync(UserRoleConstants.ADMIN).Result == null)
+
+            var result2 = roleManager.FindByNameAsync(UserRoleConstants.ADMIN).Result;
+
+            if (result2 == null)
             {
                 roleManager.CreateAsync(new ApplicationRole(UserRoleConstants.ADMIN));
             }
