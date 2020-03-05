@@ -139,9 +139,6 @@ namespace deft_pay_backend.Controllers
         {
             Logger.LogError("Login method called");
 
-            // TODO
-            // Log each login session in database
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(new ModelStateErrorResponseDTO(HttpStatusCode.BadRequest, ModelState));
@@ -231,17 +228,13 @@ namespace deft_pay_backend.Controllers
         /// <response code="400">Bad Request</response>
         /// <param name="model"></param>
         /// <returns></returns>
-        [HttpPost]
-        [Route("logout")]
+        [HttpPost("logout")]
         [Authorize]
         [ProducesResponseType(typeof(DataResponseDTO<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ModelStateErrorResponseDTO), StatusCodes.Status400BadRequest)]
         public IActionResult Logout([FromBody]LogoutRequestDTO model)
         {
             Logger.LogError("Logout method called");
-
-            // TODO
-            // Log each logout request in database
 
             if (!ModelState.IsValid)
             {

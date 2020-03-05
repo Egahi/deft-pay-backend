@@ -9,8 +9,8 @@ using deft_pay_backend.DBContexts;
 namespace deft_pay_backend.Migrations
 {
     [DbContext(typeof(MariaDbContext))]
-    [Migration("20200305030906_More_Models")]
-    partial class More_Models
+    [Migration("20200305104606_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

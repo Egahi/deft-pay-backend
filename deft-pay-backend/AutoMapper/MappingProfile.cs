@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using deft_pay_backend.Models;
 using deft_pay_backend.ModelsDTO.Requests;
+using deft_pay_backend.ModelsDTO.Responses;
 using System;
 
 namespace deft_pay_backend.AutoMapper
@@ -34,6 +35,9 @@ namespace deft_pay_backend.AutoMapper
                 .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(
                     src => DateTime.ParseExact(src.DateOfBirth, "dd/MM/yyyy", null)))
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            // Users Controller
+            CreateMap<ApplicationUser, UserProfileSummaryDTO>();
         }
     }
 }
