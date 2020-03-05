@@ -14,6 +14,9 @@ using System;
 using System.IO;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using Microsoft.Extensions.Logging;
+using AutoMapper;
+using deft_pay_backend.AutoMapper;
+using System.Text;
 
 namespace deft_pay_backend
 {
@@ -36,6 +39,18 @@ namespace deft_pay_backend
             services.AddRouting(options => options.LowercaseUrls = true);
 
             services.AddCors();
+
+            //Jwt Authentication
+            var key = Encoding.UTF8.GetBytes(Configuration["JWT_Secret"].ToString());
+
+            // Auto Mapper Configurations
+            var mappingConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new MappingProfile());
+            });
+
+            IMapper mapper = mappingConfig.CreateMapper();
+            services.AddSingleton(mapper);
 
             services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddEntityFrameworkStores<MariaDbContext>()
@@ -66,6 +81,7 @@ namespace deft_pay_backend
                 c.IncludeXmlComments(filePath);
             });
 
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
         }
 
