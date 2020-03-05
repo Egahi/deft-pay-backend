@@ -36,8 +36,6 @@ namespace deft_pay_backend
 
             services.AddControllers();
 
-            services.AddRouting(options => options.LowercaseUrls = true);
-
             services.AddCors();
 
             //Jwt Authentication
@@ -72,6 +70,8 @@ namespace deft_pay_backend
                 options.Password.RequireUppercase = false;
                 options.Password.RequiredLength = 4;
             });
+
+            services.AddRouting(options => options.LowercaseUrls = true);
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
