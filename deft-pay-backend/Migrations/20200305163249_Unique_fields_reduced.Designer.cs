@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using deft_pay_backend.DBContexts;
 
 namespace deft_pay_backend.Migrations
 {
     [DbContext(typeof(MariaDbContext))]
-    partial class MariaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200305163249_Unique_fields_reduced")]
+    partial class Unique_fields_reduced
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -72,45 +74,20 @@ namespace deft_pay_backend.Controllers
             {
                 return BadRequest(new ModelStateErrorResponseDTO(HttpStatusCode.BadRequest, ModelState));
             }
+            
+            var applicationUser = await UserManager.FindByNameAsync(model.BVN);
 
-            if (string.IsNullOrWhiteSpace(model.Email) && string.IsNullOrWhiteSpace(model.PhoneNumber))
+            if (applicationUser != null)
             {
                 return BadRequest(new ErrorResponseDTO(HttpStatusCode.BadRequest,
-                    new string[] { "You are required to provide either email or phone number." }));
-            }
-
-            ApplicationUser applicationUser = null;
-
-            if (!string.IsNullOrWhiteSpace(model.Email))
-            {
-                if (RegexUtilities.IsValidEmail(model.Email))
-                {
-                    applicationUser = await UserManager.FindByEmailAsync(model.Email);
-                }
-
-                if (applicationUser != null)
-                {
-                    return BadRequest(new ErrorResponseDTO(HttpStatusCode.BadRequest,
-                            new string[] { "The email has been registered already" }));
-                }
-            }
-
-            if (!string.IsNullOrWhiteSpace(model.PhoneNumber))
-            {
-                applicationUser = await UserManager.FindByNameAsync(model.PhoneNumber);
-
-                if (applicationUser != null)
-                {
-                    return BadRequest(new ErrorResponseDTO(HttpStatusCode.BadRequest,
-                            new string[] { "The phone number has been registered already" }));
-                }
+                        new string[] { "You already have an account on this platfrom proceed to login." }));
             }
 
             applicationUser = Mapper.Map<ApplicationUser>(model);
 
             try
             {
-                await UserManager.CreateAsync(applicationUser, model.Password);
+                await UserManager.CreateAsync(applicationUser);
 
                 await UserManager.AddToRoleAsync(applicationUser, UserRoleConstants.USER);
             }
@@ -120,6 +97,9 @@ namespace deft_pay_backend.Controllers
                 return BadRequest(new ErrorResponseDTO(HttpStatusCode.BadRequest,
                     new string[] { "Could not complete your registration. Please retry later, or contact the support team" }));
             }
+
+            // TODO
+            // Send user data to API
 
             return Ok(GetJWTToken(applicationUser));
         }
@@ -144,18 +124,11 @@ namespace deft_pay_backend.Controllers
                 return BadRequest(new ModelStateErrorResponseDTO(HttpStatusCode.BadRequest, ModelState));
             }
 
-            ApplicationUser user;
+            ApplicationUser user = null;
 
             try
             {
-                if (RegexUtilities.IsValidEmail(model.UserName))
-                {
-                    user = await UserManager.FindByEmailAsync(model.UserName);
-                }
-                else
-                {
-                    user = await UserManager.FindByNameAsync(model.UserName);
-                }
+                // TODO verify user from API
             }
             catch (Exception ex)
             {
@@ -167,14 +140,7 @@ namespace deft_pay_backend.Controllers
             if (user == null || user.ShouldDelete)
             {
                 return BadRequest(new ErrorResponseDTO(HttpStatusCode.BadRequest,
-                    new List<string> { "The username or password is incorrect" }));
-            }
-
-            var validPassword = await UserManager.CheckPasswordAsync(user, model.Password);
-            if (!validPassword)
-            {
-                return BadRequest(new ErrorResponseDTO(HttpStatusCode.BadRequest,
-                    new List<string> { "The username or password is incorrect" }));
+                    new List<string> { "You do not have an account with us kindly proceed to signup." }));
             }
 
             return Ok(GetJWTToken(user));
@@ -265,8 +231,7 @@ namespace deft_pay_backend.Controllers
             var claims = new List<Claim>
             {
                 new Claim(identityOptions.ClaimsIdentity.UserIdClaimType, user.Id.ToString()),
-                new Claim(identityOptions.ClaimsIdentity.UserNameClaimType,
-                    user.PhoneNumber ?? user.Email ?? user.UserName)
+                new Claim(identityOptions.ClaimsIdentity.UserNameClaimType, user.UserName)
             };
             foreach (var role in userRoles)
             {
@@ -306,8 +271,8 @@ namespace deft_pay_backend.Controllers
                 RefreshToken = refreshToken.RefreshTokenId,
                 ExpiryTime = tokenDescriptor.Expires.ToString(),
                 Roles = userRoles,
-                Fullname = string.Join(" ", new List<string> { user.FirstName, user.LastName }),
-                Email = user.Email
+                Fullname = string.Join(" ", new List<string> { user.FirstName, user?.MiddleName, user.LastName }),
+                BVN = user.BVN
             });
         }
     }

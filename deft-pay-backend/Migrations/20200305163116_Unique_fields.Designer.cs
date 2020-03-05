@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using deft_pay_backend.DBContexts;
 
 namespace deft_pay_backend.Migrations
 {
     [DbContext(typeof(MariaDbContext))]
-    partial class MariaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200305163116_Unique_fields")]
+    partial class Unique_fields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -239,6 +241,9 @@ namespace deft_pay_backend.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BVN")
+                        .IsUnique();
+
+                    b.HasIndex("Email")
                         .IsUnique();
 
                     b.HasIndex("NormalizedEmail")
