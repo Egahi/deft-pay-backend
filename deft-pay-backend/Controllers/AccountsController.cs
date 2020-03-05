@@ -231,8 +231,7 @@ namespace deft_pay_backend.Controllers
         /// <response code="400">Bad Request</response>
         /// <param name="model"></param>
         /// <returns></returns>
-        [HttpPost]
-        [Route("logout")]
+        [HttpPost("logout")]
         [Authorize]
         [ProducesResponseType(typeof(DataResponseDTO<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ModelStateErrorResponseDTO), StatusCodes.Status400BadRequest)]

@@ -17,6 +17,10 @@ using Microsoft.Extensions.Logging;
 using AutoMapper;
 using deft_pay_backend.AutoMapper;
 using System.Text;
+using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace deft_pay_backend
 {
@@ -35,6 +39,8 @@ namespace deft_pay_backend
             services.AddSingleton(Configuration);
 
             services.AddControllers();
+
+            services.AddMvc(options => options.EnableEndpointRouting = false);
 
             services.AddCors();
 
@@ -71,6 +77,25 @@ namespace deft_pay_backend
                 options.Password.RequiredLength = 4;
             });
 
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = false;
+                x.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
             services.AddRouting(options => options.LowercaseUrls = true);
 
             // Register the Swagger generator, defining 1 or more Swagger documents
@@ -80,6 +105,17 @@ namespace deft_pay_backend
                 var filePath = Path.Combine(AppContext.BaseDirectory, "deft-pay-backend.xml");
                 c.IncludeXmlComments(filePath);
             });
+
+            //services.ConfigureApplicationCookie(options => {
+            //    options.AccessDeniedPath = "/Account/Login";
+            //    options.LoginPath = "/Account/Denied";
+            //    options.Cookie.HttpOnly = true;
+            //    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+            //    options.Events.OnRedirectToLogin = context => {
+            //        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            //        return Task.CompletedTask;
+            //    };
+            //});
 
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
@@ -92,6 +128,23 @@ namespace deft_pay_backend
                               RoleManager<ApplicationRole> roleManager,
                               UserManager<ApplicationUser> userManager)
         {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            }
+            else
+            {
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
+
+            app.UseHttpsRedirection();
+
+            app.UseAuthentication();
+
+            app.UseMvc();
+
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
 
@@ -101,22 +154,6 @@ namespace deft_pay_backend
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Deft Pay Backend APIs V1");
                 c.RoutePrefix = string.Empty;
-            });
-
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
-            app.UseHttpsRedirection();
-
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
             });
 
             // Migrate Database
