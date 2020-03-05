@@ -43,8 +43,7 @@ namespace deft_pay_backend.Controllers
         /// <param name="size"></param>
         /// <returns></returns>
         [HttpGet]
-        [Authorize]
-        [ProducesResponseType(typeof(DataResponseArrayDTO<ApplicationUser>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(DataResponseArrayDTO<UserProfileSummaryDTO>), StatusCodes.Status200OK)]
         public IActionResult Get(int page = 0, int size = 20)
         {
             Logger.LogInformation("UsersController Get method called");
@@ -73,8 +72,8 @@ namespace deft_pay_backend.Controllers
             var totalUsers = users.Count();
             var pageUsers = users.Skip(skip).Take(size).ToList();
 
-            //var userProfiles = Mapper.Map<List<ApplicationUser>>(pageUsers);
-            return Ok(new DataResponseArrayDTO<ApplicationUser>(pageUsers, totalUsers, page, size));
+            var userProfiles = Mapper.Map<List<UserProfileSummaryDTO>>(pageUsers);
+            return Ok(new DataResponseArrayDTO<UserProfileSummaryDTO>(userProfiles, totalUsers, page, size));
         }
 
     }
