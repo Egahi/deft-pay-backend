@@ -3,6 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using System.Security.Cryptography.Xml;
+using System.Text;
 using System.Threading;
 
 namespace deft_pay_backend.Utilities
@@ -15,6 +21,10 @@ namespace deft_pay_backend.Utilities
         public static IConfiguration Configuration { get; set; }
 
         private static readonly Random random = new Random();
+
+        private const string NIBS_BASE_URL = "https://sandboxapi.fsi.ng/nibss/";
+        
+        private static string urlParameters = "?api_key=123";
 
         /// <summary>
         /// Get Random Token
@@ -36,6 +46,58 @@ namespace deft_pay_backend.Utilities
             const string chars = "0123456789abcdef";
             return new string(Enumerable.Repeat(chars, length)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        /// <summary>
+        /// Make API calls
+        /// </summary>
+        /// <param name="endpoint"></param>
+        /// <param name="content"></param>
+        public static HttpResponseMessage MakeAPICall(string endpoint, StringContent content = null)
+        {
+            string signatureMethodHeader = "SHA256";
+            string password = "^o'e6EXK5T ~^j2=";
+            string username = "MTExMTE=";
+
+            // The date must be in the YYYYMMDD format
+            string date = DateTime.Now.ToString("yyyymmdd");
+
+            // Concatenate all three strings into one string
+            string signatureString = username + date + password;
+
+            // Sign the derived string with the sha256 method with digest hex and save it for it will be used later
+            SHA256 mySHA256 = SHA256.Create();
+            var textBytes = Encoding.UTF8.GetBytes(signatureString);
+            string signatureHeader = Encoding.UTF8.GetString(mySHA256.ComputeHash(textBytes));
+            mySHA256.Dispose();
+
+            // Concatenate the strings in the format username:password
+            string authString = username + ":" + password;
+
+            // Encode it to Base64 and save it for it will be used later
+            var plainTextBytes = Encoding.UTF8.GetBytes(authString);
+            string authHeader = Convert.ToBase64String(plainTextBytes);
+
+            HttpClient client = new HttpClient();
+            client.BaseAddress = new Uri(NIBS_BASE_URL);
+
+            // Add an Accept header for JSON format.
+            client.DefaultRequestHeaders.Accept.Add(
+            new MediaTypeWithQualityHeaderValue("application/json"));
+
+            client.DefaultRequestHeaders.Add("OrganisationCode", "MTExMTE=");
+            client.DefaultRequestHeaders.Add("Sandbox-Key", "cce0cdcdc188a5b0569b46591355624e");
+            client.DefaultRequestHeaders.Add("Authorization", "TVRFeE1URT1ebydlNkVYSzVUIH5eajI9");
+            client.DefaultRequestHeaders.Add("SIGNATURE", "0181a96717f019dcebdbfe541b5430a4bfeb41e83c7d93c928177f01eea49003");
+            client.DefaultRequestHeaders.Add("SIGNATURE_METH", signatureMethodHeader);
+
+            // List data response.
+            HttpResponseMessage response = client.PostAsync(endpoint, content).Result;  // Blocking call! Program will wait here until a response is received or a timeout occurs.
+            
+            //Dispose once all HttpClient calls are complete. This is not necessary if the containing object will be disposed of; for example in this case the HttpClient instance will be disposed automatically when the application terminates so the following call is superfluous.
+            client.Dispose();
+
+            return response;
         }
     }
 

@@ -14,10 +14,16 @@ namespace deft_pay_backend.Models
         }
 
         public string FirstName { get; set; }
+        public string MiddleName { get; set; }
         public string LastName { get; set; }
-        public DateTime? DateOfBirth { get; set; }
+        public string DateOfBirth { get; set; }
         public string Gender { get; set; }
+        public string BVN { get; set; }
         public string ProfilePictureUrl { get; set; }
+        public string Email { get; set; }
+        public string Phonenumber1 { get; set; }
+        public string Phonenumber2 { get; set; }
+        public string EnrollmentBank { get; set; }
         public bool ShouldDelete { get; set; }
         public DateTime TimeCreated { get; set; } = DateTime.UtcNow;
         public DateTime? TimeDeleted { get; set; }

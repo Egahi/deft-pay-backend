@@ -26,11 +26,7 @@ namespace deft_pay_backend.DBContexts
                 .IsUnique();
 
             modelBuilder.Entity<ApplicationUser>()
-                .HasIndex(bc => new { bc.PhoneNumber })
-                .IsUnique();
-
-            modelBuilder.Entity<ApplicationUser>()
-                .HasIndex(bc => new { bc.Email })
+                .HasIndex(bc => new { bc.BVN })
                 .IsUnique();
 
             modelBuilder.Entity<IdentityUserLogin<Guid>>()
