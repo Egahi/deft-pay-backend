@@ -34,7 +34,7 @@ namespace deft_pay_backend
             string defaultUserEmail = configuration["DefaultAdminEmail"];
             string defaultUserPassword = configuration["DefaultAdminPassword"];
 
-            // Setup admin user only if it is setup in appsettings
+            // Setup default user only if it is setup in appsettings
             if (!string.IsNullOrEmpty(defaultUserEmail) && !string.IsNullOrEmpty(defaultUserPassword))
             {
                 if (userManager.FindByEmailAsync(defaultUserEmail).Result == null)
