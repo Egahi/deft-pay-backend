@@ -80,12 +80,12 @@ namespace deft_pay_backend.Controllers
             return Ok(new DataResponseArrayDTO<UserProfileSummaryDTO>(userProfiles, totalUsers, page, size));
         }
 
-        /// <summary>Get Users endpoint</summary>
+        /// <summary>Get Transaction token endpoint</summary>
         /// <remarks>
-        /// Retrieves a paginated list of all registered users
-        /// Requires Authorization
+        /// Generates a transaction token for the user with the specified bvn
         /// </remarks>
         /// <response code="200">Success</response>
+        /// <response code="400">BadRequest</response>
         /// <param name="bvn"></param>
         /// <param name="amount"></param>
         /// <returns></returns>
@@ -99,7 +99,6 @@ namespace deft_pay_backend.Controllers
             ApplicationUser user = null;
             try
             {
-                // TODO verify user from API
                 user = UserRepository.Get(x => x.BVN == bvn)
                                      .FirstOrDefault();
 
@@ -153,5 +152,81 @@ namespace deft_pay_backend.Controllers
             return Ok(new DataResponseDTO<TransactionTokenResponseDTO>(transactionTokenDTO, HttpStatusCode.OK));
         }
 
+        /// <summary>Post Transaction Token enpoint</summary>
+        /// <remarks>
+        /// Processes the transaction encoded in the token and makes payment to the user with the specified bvn 
+        /// </remarks>
+        /// <response code="200">Success</response>
+        /// <response code="400">BadRequest</response>
+        /// <param name="bvn"></param>
+        /// <param name="otp"></param>
+        /// <returns></returns>
+        [HttpPost("{bvn}/token")]
+        [ProducesResponseType(typeof(DataResponseArrayDTO<string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ModelStateErrorResponseDTO), StatusCodes.Status400BadRequest)]
+        public IActionResult PostToken([FromRoute]string bvn, [FromQuery]string otp = "")
+        {
+            Logger.LogInformation("UsersController GetToken method called");
+
+            ApplicationUser user = null;
+            try
+            {
+                user = UserRepository.Get(x => x.BVN == bvn)
+                                     .FirstOrDefault();
+
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error while logging user in");
+                return BadRequest(new ErrorResponseDTO(HttpStatusCode.BadRequest,
+                    new string[] { "Could not complete request. Please retry later, or contact the support team" }));
+            }
+
+            if (user == null || user.ShouldDelete)
+            {
+                return BadRequest(new ErrorResponseDTO(HttpStatusCode.BadRequest,
+                    new List<string> { "You do not have an account with us kindly proceed to signup." }));
+            }
+
+            TransactionToken transactionToken = null;
+
+            try
+            {
+                transactionToken = TransactionTokenRepository.Get(x => x.OTP == otp && 
+                                                                       !x.IsUsed &&
+                                                                       !(x.ExpiryDate < DateTime.Now))
+                                          .FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error while logging user in");
+                return BadRequest(new ErrorResponseDTO(HttpStatusCode.BadRequest,
+                    new string[] { "Could not complete request. Please retry later, or contact the support team" }));
+            }
+
+            if (transactionToken == null)
+            {
+                return BadRequest(new ErrorResponseDTO(HttpStatusCode.BadRequest,
+                    new List<string> { "Invalid or expired token. Please provide a valid token." }));
+            }
+
+            // TODO
+            // Process payment
+
+            transactionToken.IsUsed = true;
+
+            try
+            {
+                TransactionTokenRepository.Update(transactionToken);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error while logging user in");
+                return BadRequest(new ErrorResponseDTO(HttpStatusCode.BadRequest,
+                    new string[] { "Could not complete request. Please retry later, or contact the support team" }));
+            }
+
+            return Ok(new DataResponseDTO<string>("Payment Successful!"));
+        }
     }
 }
