@@ -22,9 +22,7 @@ namespace deft_pay_backend.Utilities
 
         private static readonly Random random = new Random();
 
-        private const string NIBS_BASE_URL = "https://sandboxapi.fsi.ng/nibss/";
-        
-        private static string urlParameters = "?api_key=123";
+        private const string BASE_URL = "https://deftpay.cognitiveservices.azure.com/";
 
         /// <summary>
         /// Get Random Token
@@ -55,41 +53,37 @@ namespace deft_pay_backend.Utilities
         /// <param name="content"></param>
         public static HttpResponseMessage MakeAPICall(string endpoint, StringContent content = null)
         {
-            string signatureMethodHeader = "SHA256";
-            string password = "^o'e6EXK5T ~^j2=";
-            string username = "MTExMTE=";
+            //string signatureMethodHeader = "SHA256";
+            //string password = "^o'e6EXK5T ~^j2=";
+            //string username = "MTExMTE=";
 
-            // The date must be in the YYYYMMDD format
-            string date = DateTime.Now.ToString("yyyymmdd");
+            //// The date must be in the YYYYMMDD format
+            //string date = DateTime.Now.ToString("yyyymmdd");
 
-            // Concatenate all three strings into one string
-            string signatureString = username + date + password;
+            //// Concatenate all three strings into one string
+            //string signatureString = username + date + password;
 
-            // Sign the derived string with the sha256 method with digest hex and save it for it will be used later
-            SHA256 mySHA256 = SHA256.Create();
-            var textBytes = Encoding.UTF8.GetBytes(signatureString);
-            string signatureHeader = Encoding.UTF8.GetString(mySHA256.ComputeHash(textBytes));
-            mySHA256.Dispose();
+            //// Sign the derived string with the sha256 method with digest hex and save it for it will be used later
+            //SHA256 mySHA256 = SHA256.Create();
+            //var textBytes = Encoding.UTF8.GetBytes(signatureString);
+            //string signatureHeader = Encoding.UTF8.GetString(mySHA256.ComputeHash(textBytes));
+            //mySHA256.Dispose();
 
-            // Concatenate the strings in the format username:password
-            string authString = username + ":" + password;
+            //// Concatenate the strings in the format username:password
+            //string authString = username + ":" + password;
 
-            // Encode it to Base64 and save it for it will be used later
-            var plainTextBytes = Encoding.UTF8.GetBytes(authString);
-            string authHeader = Convert.ToBase64String(plainTextBytes);
+            //// Encode it to Base64 and save it for it will be used later
+            //var plainTextBytes = Encoding.UTF8.GetBytes(authString);
+            //string authHeader = Convert.ToBase64String(plainTextBytes);
 
             HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri(NIBS_BASE_URL);
+            client.BaseAddress = new Uri(BASE_URL);
 
             // Add an Accept header for JSON format.
             client.DefaultRequestHeaders.Accept.Add(
             new MediaTypeWithQualityHeaderValue("application/json"));
 
-            client.DefaultRequestHeaders.Add("OrganisationCode", "MTExMTE=");
-            client.DefaultRequestHeaders.Add("Sandbox-Key", "cce0cdcdc188a5b0569b46591355624e");
-            client.DefaultRequestHeaders.Add("Authorization", "TVRFeE1URT1ebydlNkVYSzVUIH5eajI9");
-            client.DefaultRequestHeaders.Add("SIGNATURE", "0181a96717f019dcebdbfe541b5430a4bfeb41e83c7d93c928177f01eea49003");
-            client.DefaultRequestHeaders.Add("SIGNATURE_METH", signatureMethodHeader);
+            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "06a88810bddc4e98a3d2f7ae862b420f");
 
             // List data response.
             HttpResponseMessage response = client.PostAsync(endpoint, content).Result;  // Blocking call! Program will wait here until a response is received or a timeout occurs.

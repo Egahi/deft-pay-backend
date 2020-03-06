@@ -4,7 +4,7 @@ namespace deft_pay_backend.ModelsDTO.Requests
 {
     public class LoginRequestDTO
     {
-        [Required]
+        public string BVN { get; set; }
         [Url]
         public string ProfilePicture { get; set; }
     }

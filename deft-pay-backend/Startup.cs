@@ -119,6 +119,7 @@ namespace deft_pay_backend
 
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<ITransactionTokenRepository, TransactionTokenRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
