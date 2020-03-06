@@ -2,7 +2,6 @@
 using deft_pay_backend.Models;
 using deft_pay_backend.ModelsDTO.Requests;
 using deft_pay_backend.ModelsDTO.Responses;
-using System;
 
 namespace deft_pay_backend.AutoMapper
 {
@@ -24,6 +23,11 @@ namespace deft_pay_backend.AutoMapper
 
             // Users Controller
             CreateMap<ApplicationUser, UserProfileSummaryDTO>();
+            CreateMap<TransactionToken, TransactionTokenResponseDTO>()
+                .ForMember(dest => dest.ExpiryDate, opt => opt.MapFrom(
+                    src => src.ExpiryDate.ToLongDateString()))
+                .ForMember(dest => dest.ExpiryTime, opt => opt.MapFrom(
+                    src => src.ExpiryDate.ToLongTimeString()));
         }
     }
 }

@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using deft_pay_backend.Models;
 using deft_pay_backend.ModelsDTO.Requests;
 using deft_pay_backend.ModelsDTO.Responses;
@@ -21,6 +11,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Net;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace deft_pay_backend.Controllers
 {
@@ -99,7 +97,7 @@ namespace deft_pay_backend.Controllers
             }
 
             // TODO
-            // Send user data to API
+            // var response = Helper.MakeAPICall("face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=false&returnFaceAttributes=[age,gender]");
 
             return Ok(GetJWTToken(applicationUser));
         }
@@ -125,10 +123,12 @@ namespace deft_pay_backend.Controllers
             }
 
             ApplicationUser user = null;
-
             try
             {
                 // TODO verify user from API
+                user = UserRepository.Get(x => x.BVN == model.BVN)
+                                     .FirstOrDefault();
+
             }
             catch (Exception ex)
             {

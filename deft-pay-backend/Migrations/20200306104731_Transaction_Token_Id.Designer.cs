@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using deft_pay_backend.DBContexts;
 
 namespace deft_pay_backend.Migrations
 {
     [DbContext(typeof(MariaDbContext))]
-    partial class MariaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200306104731_Transaction_Token_Id")]
+    partial class Transaction_Token_Id
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -286,12 +288,6 @@ namespace deft_pay_backend.Migrations
 
                     b.Property<DateTime>("ExpiryDate")
                         .HasColumnType("datetime(6)");
-
-                    b.Property<bool>("IsExpired")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool>("IsUsed")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("OTP")
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4");

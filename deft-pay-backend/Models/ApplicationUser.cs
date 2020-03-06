@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
+using System.Collections.Generic;
 
 namespace deft_pay_backend.Models
 {
@@ -28,5 +29,7 @@ namespace deft_pay_backend.Models
         public DateTime TimeCreated { get; set; } = DateTime.UtcNow;
         public DateTime? TimeDeleted { get; set; }
         public DateTime? TimeDeleteRequestReceived { get; set; }
+
+        public virtual ICollection<TransactionToken> TransactionTokens { get; set; } = new HashSet<TransactionToken>();
     }
 }
